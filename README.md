@@ -61,10 +61,10 @@ The bot starts with the Minecraft server and shuts down with it. If `botToken` i
 
 ## Build
 
-Requires Java 21:
+Requires Java 21. The project uses NeoForge's current ModDevGradle toolchain for 1.21.1. ModDevGradle provides an alternate pipeline that can skip Minecraft decompilation/recompilation, which this server-only mod uses for faster and more reliable builds.
 
 ```bash
-./gradlew build
+gradle clean build
 ```
 
 The finished mod is written to `build/libs/`. JDA is packaged into the mod with NeoForge Jar-in-Jar.
