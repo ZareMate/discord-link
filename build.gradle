@@ -42,7 +42,9 @@ neoForge {
 }
 
 dependencies {
-    jarJar(implementation("net.dv8tion:JDA:" + jda_version)) {
+    jarJar(implementation("net.dv8tion:JDA:" + jda_version) {
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }) {
         version {
             strictly("[" + jda_version + "]")
             prefer(jda_version)
