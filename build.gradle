@@ -42,7 +42,7 @@ neoForge {
 }
 
 dependencies {
-    compileOnly "net.luckperms:api:5.5.85"
+    compileOnly "net.luckperms:api:5.4.140"
     jarJar(implementation("net.dv8tion:JDA:" + jda_version) {
         exclude group: "org.slf4j", module: "slf4j-api"
     }) {
