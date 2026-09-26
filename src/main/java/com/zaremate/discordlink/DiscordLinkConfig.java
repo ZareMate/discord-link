@@ -9,6 +9,7 @@ public final class DiscordLinkConfig {
     public static final ModConfigSpec.ConfigValue<String> INVITE_URL;
     public static final ModConfigSpec.ConfigValue<String> REWARD_ITEM;
     public static final ModConfigSpec.IntValue REWARD_COUNT;
+    public static final ModConfigSpec.ConfigValue<String> REWARD_NAME;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -20,6 +21,7 @@ public final class DiscordLinkConfig {
         b.comment("First-link reward.").push("reward");
         REWARD_ITEM = b.define("item", "numismatics:cog");
         REWARD_COUNT = b.defineInRange("count", 2, 1, 64);
+        REWARD_NAME = b.define("name", "2 Cogs");
         b.pop();
         SPEC = b.build();
     }
