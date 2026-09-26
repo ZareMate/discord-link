@@ -2,6 +2,7 @@ package com.zaremate.discordlink;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
@@ -25,6 +26,7 @@ public final class DiscordLinkCommands {
         dispatcher.register(Commands.literal("checklink")
                 .requires(source -> LuckPermsHook.has(source, LuckPermsHook.ADMIN_CHECK))
                 .then(Commands.argument("player", StringArgumentType.word())
+                        .suggests((ctx, builder) -> suggestPlayers(ctx.getSource(), builder))
                         .executes(ctx -> check(ctx.getSource(),
                                 StringArgumentType.getString(ctx, "player"))))
                 .then(Commands.literal("id")
@@ -35,6 +37,7 @@ public final class DiscordLinkCommands {
         dispatcher.register(Commands.literal("discordcheck")
                 .requires(source -> LuckPermsHook.has(source, LuckPermsHook.ADMIN_CHECK))
                 .then(Commands.argument("player", StringArgumentType.word())
+                        .suggests((ctx, builder) -> suggestPlayers(ctx.getSource(), builder))
                         .executes(ctx -> check(ctx.getSource(),
                                 StringArgumentType.getString(ctx, "player"))))
                 .then(Commands.literal("id")
@@ -45,12 +48,34 @@ public final class DiscordLinkCommands {
         dispatcher.register(Commands.literal("discordunlink")
                 .requires(source -> LuckPermsHook.has(source, LuckPermsHook.ADMIN_UNLINK))
                 .then(Commands.argument("player", StringArgumentType.word())
+                        .suggests((ctx, builder) -> suggestPlayers(ctx.getSource(), builder))
                         .executes(ctx -> unlinkOther(ctx.getSource(),
                                 StringArgumentType.getString(ctx, "player")))));
     }
 
     private static DiscordLinkService service() {
         return DiscordLinkEvents.service();
+    }
+
+    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestPlayers(
+            CommandSourceStack source, SuggestionsBuilder builder) {
+        DiscordLinkService service = service();
+        String remaining = builder.getRemaining().toLowerCase(java.util.Locale.ROOT);
+        java.util.LinkedHashSet<String> names = new java.util.LinkedHashSet<>();
+
+        for (ServerPlayer player : source.getServer().getPlayerList().getPlayers()) {
+            names.add(player.getGameProfile().getName());
+        }
+
+        names.addAll(service.getKnownMinecraftNames());
+
+        for (String name : names) {
+            if (name.toLowerCase(java.util.Locale.ROOT).startsWith(remaining)) {
+                builder.suggest(name);
+            }
+        }
+
+        return builder.buildFuture();
     }
 
     private static Component prefix(String text) {
@@ -130,20 +155,24 @@ public final class DiscordLinkCommands {
     }
 
     private static int check(CommandSourceStack source, String name) {
+        DiscordLinkService service = service();
         ServerPlayer player = source.getServer().getPlayerList().getPlayerByName(name);
-        if (player == null) {
-            source.sendFailure(DiscordLinkText.bad("Player '" + name + "' is not online."));
+
+        java.util.UUID uuid = player != null ? player.getUUID() : service.findLinkedPlayer(name);
+        if (uuid == null) {
+            source.sendFailure(DiscordLinkText.bad(
+                    "No linked player named '" + name + "' was found. The player may be offline or not linked."));
             return 0;
         }
 
-        DiscordLinkStore.Link link = service().getLink(player.getUUID());
+        DiscordLinkStore.Link link = service.getLink(uuid);
         if (link == null || link.discordId == null) {
             source.sendFailure(DiscordLinkText.bad(name + " is not linked to Discord."));
             return 0;
         }
 
         source.sendSuccess(() -> DiscordLinkText.good(
-                name + " is linked to " + link.discordTag + " (" + link.discordId + ")."), false);
+                link.minecraftName + " is linked to " + link.discordTag + " (" + link.discordId + ")."), false);
         return 1;
     }
 
