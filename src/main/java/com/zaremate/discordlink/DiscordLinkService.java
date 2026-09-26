@@ -2,6 +2,8 @@ package com.zaremate.discordlink;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -48,6 +50,8 @@ public final class DiscordLinkService extends ListenerAdapter {
         try {
             jda = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .setStatus(OnlineStatus.ONLINE)
+                    .setActivity(Activity.playing("Minecraft"))
                     .addEventListeners(this)
                     .build();
 
@@ -58,7 +62,7 @@ public final class DiscordLinkService extends ListenerAdapter {
                     System.out.println("[DiscordLink] Discord connection ready. Registering guild commands for " + guildId);
                     registerDiscordCommands(jda);
                 } catch (Exception e) {
-                    System.err.println("[DiscordLink] Discord login/ready failed: " + e);
+                    System.err.println("[DiscordLink] Discord login/ready failed: " + e.getClass().getName() + ": " + e.getMessage());
                 }
             }, "DiscordLink-Login").start();
         } catch (Exception e) {
@@ -177,7 +181,7 @@ public final class DiscordLinkService extends ListenerAdapter {
 
         guild.updateCommands().addCommands(commands).queue(
                 success -> System.out.println("[DiscordLink] Registered Discord commands in guild " + guildId),
-                error -> System.err.println("[DiscordLink] Failed to register Discord commands: " + error)
+                error -> System.err.println("[DiscordLink] Failed to register Discord commands: " + error.getClass().getName() + ": " + error.getMessage())
         );
 
     }
