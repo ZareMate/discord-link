@@ -12,8 +12,13 @@ public final class LuckPermsHook {
     private LuckPermsHook() {}
 
     public static boolean has(CommandSourceStack source, String permission) {
+        // Keep normal vanilla OP access working while also supporting LuckPerms.
+        if (source.hasPermission(2)) {
+            return true;
+        }
+
         if (source.getEntity() == null) {
-            return source.hasPermission(2);
+            return false;
         }
 
         if (!(source.getEntity() instanceof ServerPlayer player)) {
