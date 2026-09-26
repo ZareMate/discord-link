@@ -23,3 +23,10 @@ type="required"
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.discordlink]]
+modId="luckperms"
+type="optional"
+versionRange="[5.4,6.0)"
+ordering="AFTER"
+side="SERVER"
