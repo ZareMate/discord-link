@@ -6,17 +6,39 @@ plugins {
 
 version = mod_version
 group = mod_group_id
-base { archivesName = mod_id }
+base {
+    archivesName = mod_id
+}
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+}
 
-dependencies {\n    jarJar(implementation("net.dv8tion:JDA:${jda_version}")) {\n        version {\n            strictly "[${jda_version}]"\n            prefer jda_version\n        }\n    }\n    additionalRuntimeClasspath "net.dv8tion:JDA:${jda_version}"\n}
+dependencies {
+    jarJar(implementation("net.dv8tion:JDA:" + jda_version))
+}
 
-tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
 
 tasks.withType(ProcessResources).configureEach {
-    var replaceProperties = [minecraft_version:minecraft_version, minecraft_version_range:minecraft_version_range, neo_version:neo_version, loader_version_range:loader_version_range, mod_id:mod_id, mod_name:mod_name, mod_license:mod_license, mod_version:mod_version]
+    var replaceProperties = [
+        minecraft_version: minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version: neo_version,
+        loader_version_range: loader_version_range,
+        mod_id: mod_id,
+        mod_name: mod_name,
+        mod_license: mod_license,
+        mod_version: mod_version
+    ]
+
     inputs.properties replaceProperties
-    filesMatching(['META-INF/neoforge.mods.toml']) { expand replaceProperties }
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
 }
