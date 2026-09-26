@@ -88,7 +88,8 @@ public final class DiscordLinkCommands {
         player.sendSystemMessage(prefix("Connect your Minecraft account to our Discord server."));
         player.sendSystemMessage(DiscordLinkText.blank());
 
-        Component discordLine = DiscordLinkText.prefixed("Open ")
+        Component discordLine = Component.empty()
+                .append(DiscordLinkText.prefixed("Open "))
                 .append(DiscordLinkText.clickable(
                         "[DISCORD]",
                         ClickEvent.Action.OPEN_URL,
@@ -96,7 +97,8 @@ public final class DiscordLinkCommands {
                         "Open the Discord server"));
         player.sendSystemMessage(discordLine);
 
-        Component commandLine = DiscordLinkText.prefixed("Then use ")
+        Component commandLine = Component.empty()
+                .append(DiscordLinkText.prefixed("Then use "))
                 .append(DiscordLinkText.clickable(
                         "[/link-account]",
                         ClickEvent.Action.SUGGEST_COMMAND,
@@ -104,7 +106,9 @@ public final class DiscordLinkCommands {
                         "Click to insert the command"));
         player.sendSystemMessage(commandLine);
 
-        player.sendSystemMessage(DiscordLinkText.label("Your code", "").append(codeComponent));
+        player.sendSystemMessage(Component.empty()
+                .append(DiscordLinkText.label("Your code", ""))
+                .append(codeComponent));
         player.sendSystemMessage(DiscordLinkText.label("Reward",
                 DiscordLinkConfig.REWARD_COUNT.get() + "x " + DiscordLinkConfig.REWARD_ITEM.get()));
         player.sendSystemMessage(DiscordLinkText.blank());
