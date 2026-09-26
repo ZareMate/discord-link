@@ -12,6 +12,17 @@ A NeoForge 1.21.1 mod that hosts its Discord bot inside the Minecraft server. No
 6. Offline players receive the reward when they next join.
 7. `/unlinkdiscord` and Discord `/unlink-account` remove the association without removing the original reward.
 
+## LuckPerms permissions
+
+LuckPerms is supported on NeoForge. The admin commands use these permission nodes:
+
+- `discordlink.admin.check` — `/checklink` and `/discordcheck`
+- `discordlink.admin.unlink` — `/discordunlink`
+
+LuckPerms permission checks include inherited permissions, so a group can be granted either node. A wildcard such as `discordlink.admin.*` can cover both through LuckPerms' normal permission calculation. citeturn963882search0turn151806search1
+
+The personal commands `/link`, `/discord`, and `/unlinkdiscord` remain available to players without an admin permission.
+
 ## Minecraft commands
 
 - `/link`
