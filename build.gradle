@@ -1,7 +1,12 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.38'
+    id 'net.neoforged.moddev' version '2.0.147'
+    id 'idea'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 version = mod_version
@@ -16,13 +21,34 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation "net.neoforged:neoforge:" + neo_version
-    jarJar(implementation("net.dv8tion:JDA:" + jda_version))
+neoForge {
+    enable {
+        version = project.neo_version
+        disableRecompilation = true
+    }
+
+    runs {
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        discordlink {
+            sourceSet sourceSets.main
+        }
+    }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+dependencies {
+    jarJar(implementation("net.dv8tion:JDA:" + jda_version)) {
+        version {
+            strictly("[" + jda_version + "]")
+            prefer(jda_version)
+        }
+    }
+    additionalRuntimeClasspath "net.dv8tion:JDA:" + jda_version
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -36,10 +62,19 @@ tasks.withType(ProcessResources).configureEach {
         mod_license: mod_license,
         mod_version: mod_version
     ]
-
     inputs.properties replaceProperties
-
     filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
 }
