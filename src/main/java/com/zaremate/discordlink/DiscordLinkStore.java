@@ -45,7 +45,6 @@ public final class DiscordLinkStore {
 
     public synchronized void load() {
         try {
-            Files.createDirectories(file.getParent());
             if (Files.exists(file)) data = GSON.fromJson(Files.readString(file), Data.class);
         } catch (Exception e) {
             System.err.println("[DiscordLink] Could not load data: " + e);
@@ -59,7 +58,6 @@ public final class DiscordLinkStore {
 
     private void save() {
         try {
-            Files.createDirectories(file.getParent());
             Files.writeString(file, GSON.toJson(data));
         } catch (IOException e) {
             throw new RuntimeException("Could not save Discord Link data", e);
