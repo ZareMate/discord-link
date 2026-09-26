@@ -28,10 +28,10 @@ The personal commands `/link`, `/discord`, and `/unlinkdiscord` remain available
 - `/link`
 - `/discord`
 - `/unlinkdiscord`
-- `/checklink <player>` — permission level 2
-- `/checklink id <discord-id>` — permission level 2
-- `/discordcheck <player>` — permission level 2
-- `/discordcheck id <discord-id>` — permission level 2
+- `/checklink <player>` — `discordlink.admin.check`
+- `/checklink id <discord-id>` — `discordlink.admin.check`
+- `/discordcheck <player>` — `discordlink.admin.check`
+- `/discordcheck id <discord-id>` — `discordlink.admin.unlink`
 - `/discordunlink <player>` — permission level 2
 
 ## Discord commands
