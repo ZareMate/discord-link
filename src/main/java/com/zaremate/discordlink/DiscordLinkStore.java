@@ -66,6 +66,25 @@ public final class DiscordLinkStore {
 
     public synchronized Link get(UUID uuid) { return data.links.get(uuid.toString()); }
 
+    public synchronized UUID findUuidByMinecraftName(String name) {
+        for (Link link : data.links.values()) {
+            if (link != null && link.minecraftName != null && link.minecraftName.equalsIgnoreCase(name)) {
+                return UUID.fromString(link.uuid);
+            }
+        }
+        return null;
+    }
+
+    public synchronized java.util.Set<String> getKnownMinecraftNames() {
+        java.util.Set<String> names = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        for (Link link : data.links.values()) {
+            if (link != null && link.minecraftName != null && !link.minecraftName.isBlank()) {
+                names.add(link.minecraftName);
+            }
+        }
+        return names;
+    }
+
     public synchronized UUID ownerOf(String discordId) {
         String value = data.discordIndex.get(discordId);
         return value == null ? null : UUID.fromString(value);
