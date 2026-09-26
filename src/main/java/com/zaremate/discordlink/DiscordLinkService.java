@@ -139,6 +139,14 @@ public final class DiscordLinkService extends ListenerAdapter {
         return store.get(uuid);
     }
 
+    public UUID findLinkedPlayer(String name) {
+        return store.findUuidByMinecraftName(name);
+    }
+
+    public java.util.Set<String> getKnownMinecraftNames() {
+        return store.getKnownMinecraftNames();
+    }
+
     public UUID getLinkByDiscord(String discordId) {
         return store.ownerOf(discordId);
     }
