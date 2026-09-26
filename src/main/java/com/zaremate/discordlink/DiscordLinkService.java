@@ -27,7 +27,7 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     public DiscordLinkService(MinecraftServer server) {
         this.server = server;
-        Path file = server.getFile("discord-link.json");
+        Path file = server.getServerDirectory().resolve("discord-link.json");
         this.store = new DiscordLinkStore(file);
     }
 
