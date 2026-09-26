@@ -124,10 +124,10 @@ public final class DiscordLinkCommands {
         Component commandLine = Component.empty()
                 .append(DiscordLinkText.prefixed("Command: "))
                 .append(DiscordLinkText.clickable(
-                        "[INSERT /link-account]",
-                        ClickEvent.Action.SUGGEST_COMMAND,
+                        "[COPY /link-account]",
+                        ClickEvent.Action.COPY_TO_CLIPBOARD,
                         "/link-account code:" + code,
-                        "Insert the Discord command"));
+                        "Click to copy the Discord command"));
         player.sendSystemMessage(commandLine);
 
         player.sendSystemMessage(Component.empty()
