@@ -50,7 +50,6 @@ dependencies {
             prefer(jda_version)
         }
     }
-    additionalRuntimeClasspath "net.dv8tion:JDA:" + jda_version
 }
 
 tasks.withType(ProcessResources).configureEach {
