@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -24,7 +25,8 @@ public final class DiscordLinkCommands {
         dispatcher.register(Commands.literal("checklink")
                 .requires(source -> LuckPermsHook.has(source, LuckPermsHook.ADMIN_CHECK))
                 .then(Commands.argument("player", StringArgumentType.word())
-                        .executes(ctx -> check(ctx.getSource(), StringArgumentType.getString(ctx, "player"))))
+                        .executes(ctx -> check(ctx.getSource(),
+                                StringArgumentType.getString(ctx, "player"))))
                 .then(Commands.literal("id")
                         .then(Commands.argument("discordid", StringArgumentType.word())
                                 .executes(ctx -> checkId(ctx.getSource(),
@@ -33,7 +35,8 @@ public final class DiscordLinkCommands {
         dispatcher.register(Commands.literal("discordcheck")
                 .requires(source -> LuckPermsHook.has(source, LuckPermsHook.ADMIN_CHECK))
                 .then(Commands.argument("player", StringArgumentType.word())
-                        .executes(ctx -> check(ctx.getSource(), StringArgumentType.getString(ctx, "player"))))
+                        .executes(ctx -> check(ctx.getSource(),
+                                StringArgumentType.getString(ctx, "player"))))
                 .then(Commands.literal("id")
                         .then(Commands.argument("discordid", StringArgumentType.word())
                                 .executes(ctx -> checkId(ctx.getSource(),
@@ -50,57 +53,62 @@ public final class DiscordLinkCommands {
         return DiscordLinkEvents.service();
     }
 
+    private static Component prefix(String text) {
+        return Component.literal("│ ")
+                .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(DiscordLinkText.ACCENT))
+                .append(Component.literal(text)
+                        .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(DiscordLinkText.MUTED)));
+    }
+
     private static int link(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         DiscordLinkService service = service();
 
         DiscordLinkStore.Link existing = service.getLink(player.getUUID());
         if (existing != null && existing.discordId != null) {
+            player.sendSystemMessage(DiscordLinkText.divider());
             player.sendSystemMessage(DiscordLinkText.bad(
-                    "Your Minecraft account is already linked to " + existing.discordTag + "."));
-            player.sendSystemMessage(Component.literal("│ Run ")
-                    .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0x4498DB))
-                    .append(Component.literal("/unlinkdiscord")
-                            .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xFFFFFF).withBold(true)))
-                    .append(Component.literal(" first if you want to link a different account.")
-                            .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xAAAAAA))));
+                    "Your account is already linked to " + existing.discordTag + "."));
+            player.sendSystemMessage(prefix("Run /unlinkdiscord first to link another Discord account."));
+            player.sendSystemMessage(DiscordLinkText.divider());
             return 0;
         }
 
         String code = service.generateCode(player);
 
+        Component codeComponent = DiscordLinkText.clickable(
+                code,
+                ClickEvent.Action.COPY_TO_CLIPBOARD,
+                code,
+                "Click to copy your code");
+
         player.sendSystemMessage(DiscordLinkText.divider());
         player.sendSystemMessage(DiscordLinkText.title("LINK YOUR DISCORD"));
-        player.sendSystemMessage(Component.literal(" ").append(Component.literal("")));
-        player.sendSystemMessage(Component.literal("│ ")
-                .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0x4498DB))
-                .append(Component.literal("Open ")
-                        .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xAAAAAA)))
-                .append(DiscordLinkText.action("[DISCORD]",
-                        net.minecraft.network.chat.ClickEvent.Action.OPEN_URL,
+        player.sendSystemMessage(DiscordLinkText.blank());
+        player.sendSystemMessage(prefix("Connect your Minecraft account to our Discord server."));
+        player.sendSystemMessage(DiscordLinkText.blank());
+
+        Component discordLine = DiscordLinkText.prefixed("Open ")
+                .append(DiscordLinkText.clickable(
+                        "[DISCORD]",
+                        ClickEvent.Action.OPEN_URL,
                         DiscordLinkConfig.INVITE_URL.get(),
-                        "Open the Discord server")));
-        player.sendSystemMessage(Component.literal("│ ")
-                .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0x4498DB))
-                .append(Component.literal("Use ")
-                        .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xAAAAAA)))
-                .append(DiscordLinkText.action("/link-account",
-                        net.minecraft.network.chat.ClickEvent.Action.SUGGEST_COMMAND,
+                        "Open the Discord server"));
+        player.sendSystemMessage(discordLine);
+
+        Component commandLine = DiscordLinkText.prefixed("Then use ")
+                .append(DiscordLinkText.clickable(
+                        "[/link-account]",
+                        ClickEvent.Action.SUGGEST_COMMAND,
                         "/link-account code:" + code,
-                        "Suggest the Discord command")));
-        player.sendSystemMessage(DiscordLinkText.label("Your code", code)
-                .copy().setStyle(DiscordLinkText.action(code,
-                        net.minecraft.network.chat.ClickEvent.Action.COPY_TO_CLIPBOARD,
-                        code, "Click to copy " + code).getStyle()));
+                        "Click to insert the command"));
+        player.sendSystemMessage(commandLine);
+
+        player.sendSystemMessage(DiscordLinkText.label("Your code", "").append(codeComponent));
         player.sendSystemMessage(DiscordLinkText.label("Reward",
                 DiscordLinkConfig.REWARD_COUNT.get() + "x " + DiscordLinkConfig.REWARD_ITEM.get()));
-        player.sendSystemMessage(Component.literal(" "));
-        player.sendSystemMessage(Component.literal("│ ")
-                .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0x4498DB))
-                .append(Component.literal("Code expires in ")
-                        .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xAAAAAA)))
-                .append(Component.literal("15 minutes")
-                        .setStyle(net.minecraft.network.chat.Style.EMPTY.withColor(0xFFFFFF).withBold(true))));
+        player.sendSystemMessage(DiscordLinkText.blank());
+        player.sendSystemMessage(prefix("This code expires in 15 minutes."));
         player.sendSystemMessage(DiscordLinkText.divider());
         return 1;
     }
@@ -111,6 +119,7 @@ public final class DiscordLinkCommands {
             source.sendFailure(DiscordLinkText.bad("Your account is not linked to Discord."));
             return 0;
         }
+
         source.sendSuccess(() -> DiscordLinkText.good(
                 "Your Discord account has been unlinked. You keep your original reward."), false);
         return 1;
@@ -137,7 +146,8 @@ public final class DiscordLinkCommands {
     private static int checkId(CommandSourceStack source, String discordId) {
         var uuid = service().getLinkByDiscord(discordId);
         if (uuid == null) {
-            source.sendFailure(DiscordLinkText.bad("No Minecraft account is linked to " + discordId + "."));
+            source.sendFailure(DiscordLinkText.bad(
+                    "No Minecraft account is linked to " + discordId + "."));
             return 0;
         }
 
