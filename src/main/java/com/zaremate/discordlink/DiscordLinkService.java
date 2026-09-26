@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +48,6 @@ public final class DiscordLinkService extends ListenerAdapter {
 
         try {
             jda = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .setStatus(OnlineStatus.ONLINE)
                     .setActivity(Activity.playing("Minecraft"))
                     .addEventListeners(this)
