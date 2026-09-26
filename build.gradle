@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+    implementation "net.neoforged:neoforge:" + neo_version
     jarJar(implementation("net.dv8tion:JDA:" + jda_version))
 }
 
