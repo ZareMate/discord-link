@@ -99,6 +99,7 @@ public final class DiscordLinkCommands {
             return 0;
         }
 
+        boolean existingRewardClaimed = existing != null && existing.rewarded;
         String code = service.generateCode(player);
 
         Component codeComponent = DiscordLinkText.clickable(
@@ -134,14 +135,15 @@ public final class DiscordLinkCommands {
                 .append(DiscordLinkText.prefixed("Code: "))
                 .append(codeComponent));
 
-        player.sendSystemMessage(Component.empty()
-                .append(DiscordLinkText.prefixed("Reward: "))
-                .append(Component.literal(DiscordLinkConfig.REWARD_NAME.get())
-                        .setStyle(net.minecraft.network.chat.Style.EMPTY
-                                .withColor(DiscordLinkText.WHITE)
-                                .withBold(true))));
-
-        player.sendSystemMessage(DiscordLinkText.blank());
+        if (!existingRewardClaimed) {
+            player.sendSystemMessage(Component.empty()
+                    .append(DiscordLinkText.prefixed("Reward: "))
+                    .append(Component.literal(DiscordLinkConfig.REWARD_NAME.get())
+                            .setStyle(net.minecraft.network.chat.Style.EMPTY
+                                    .withColor(DiscordLinkText.WHITE)
+                                    .withBold(true))));
+            player.sendSystemMessage(DiscordLinkText.blank());
+        }
         player.sendSystemMessage(DiscordLinkText.prefixed("Click the code to copy it."));
         player.sendSystemMessage(DiscordLinkText.prefixed("Code expires in 15 minutes."));
         player.sendSystemMessage(DiscordLinkText.divider());
