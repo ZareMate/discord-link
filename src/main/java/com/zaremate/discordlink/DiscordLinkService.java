@@ -27,7 +27,7 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     public DiscordLinkService(MinecraftServer server) {
         this.server = server;
-        Path file = server.getFile("discord-link.json").toPath();
+        Path file = server.getFile("discord-link.json");
         this.store = new DiscordLinkStore(file);
     }
 
@@ -150,13 +150,6 @@ public final class DiscordLinkService extends ListenerAdapter {
         } else {
             api.updateCommands().addCommands(commands).queue();
         }
-        return;
-        /*
-                Commands.slash("link-account", "Link your Minecraft account")
-                        .addOption(OptionType.STRING, "code", "Six-digit code from /link", true),
-                Commands.slash("unlink-account", "Unlink your Minecraft account")
-        ).queue();
-        */
         System.out.println("[DiscordLink] Discord bot online as " + api.getSelfUser().getAsTag());
     }
 
