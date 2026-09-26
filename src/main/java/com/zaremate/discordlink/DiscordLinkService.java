@@ -33,17 +33,36 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     public void start() {
         String token = DiscordLinkConfig.BOT_TOKEN.get();
+        String guildId = DiscordLinkConfig.GUILD_ID.get();
+
         if (token == null || token.isBlank()) {
-            System.out.println("[DiscordLink] Bot not started: config/discordlink-common.toml has an empty botToken.");
+            System.err.println("[DiscordLink] DISCORD BOT NOT STARTED: botToken is empty in config/discordlink-common.toml");
             return;
         }
+
+        if (guildId == null || guildId.isBlank()) {
+            System.err.println("[DiscordLink] DISCORD BOT NOT STARTED: guildId is empty in config/discordlink-common.toml");
+            return;
+        }
+
         try {
             jda = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .addEventListeners(this)
                     .build();
+
+            System.out.println("[DiscordLink] Connecting to Discord...");
+            new Thread(() -> {
+                try {
+                    jda.awaitReady();
+                    System.out.println("[DiscordLink] Discord connection ready. Registering guild commands for " + guildId);
+                    registerDiscordCommands(jda);
+                } catch (Exception e) {
+                    System.err.println("[DiscordLink] Discord login/ready failed: " + e);
+                }
+            }, "DiscordLink-Login").start();
         } catch (Exception e) {
-            System.err.println("[DiscordLink] Failed to start Discord bot: " + e);
+            System.err.println("[DiscordLink] Failed to create Discord bot: " + e);
         }
     }
 
@@ -135,7 +154,7 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        registerDiscordCommands(event.getJDA());
+        System.out.println("[DiscordLink] Discord bot is ONLINE as " + event.getJDA().getSelfUser().getAsTag());
     }
 
     private void registerDiscordCommands(JDA api) {
@@ -145,12 +164,22 @@ public final class DiscordLinkService extends ListenerAdapter {
                         .addOption(OptionType.STRING, "code", "Six-digit code from /link", true),
                 Commands.slash("unlink-account", "Unlink your Minecraft account")
         );
-        if (guildId != null && !guildId.isBlank() && api.getGuildById(guildId) != null) {
-            api.getGuildById(guildId).updateCommands().addCommands(commands).queue();
-        } else {
-            api.updateCommands().addCommands(commands).queue();
+        if (guildId == null || guildId.isBlank()) {
+            System.err.println("[DiscordLink] Cannot register Discord commands: guildId is empty.");
+            return;
         }
-        System.out.println("[DiscordLink] Discord bot online as " + api.getSelfUser().getAsTag());
+
+        var guild = api.getGuildById(guildId);
+        if (guild == null) {
+            System.err.println("[DiscordLink] Cannot register commands: bot is not a member of configured guild " + guildId);
+            return;
+        }
+
+        guild.updateCommands().addCommands(commands).queue(
+                success -> System.out.println("[DiscordLink] Registered Discord commands in guild " + guildId),
+                error -> System.err.println("[DiscordLink] Failed to register Discord commands: " + error)
+        );
+
     }
 
     @Override
