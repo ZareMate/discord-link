@@ -30,10 +30,3 @@ type="optional"
 versionRange="[5.4,6.0)"
 ordering="AFTER"
 side="SERVER"
-
-[[dependencies.discordlink]]
-modId="admin_notes"
-type="optional"
-versionRange="[1,)"
-ordering="AFTER"
-side="SERVER"
