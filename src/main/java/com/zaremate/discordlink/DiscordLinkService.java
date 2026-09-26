@@ -77,8 +77,8 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     public void onPlayerLogin(ServerPlayer player) {
         if (store.takeOwed(player.getUUID())) {
+            // Deliver the queued reward silently; linked players should not see reward/promotion text.
             giveReward(player);
-            player.sendSystemMessage(Component.literal("Discord link reward added to your inventory."));
         }
         if (store.get(player.getUUID()) == null) {
             player.sendSystemMessage(Component.literal("Link your Discord with /link to get the Discord-link reward."));
