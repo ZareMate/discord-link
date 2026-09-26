@@ -54,6 +54,7 @@ inviteUrl = "https://discord.gg/m64gHWxhW7"
 [reward]
 item = "numismatics:cog"
 count = 2
+name = "2 Cogs"
 ```
 
 Never commit your bot token.
