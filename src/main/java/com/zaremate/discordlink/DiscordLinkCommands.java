@@ -102,42 +102,48 @@ public final class DiscordLinkCommands {
         String code = service.generateCode(player);
 
         Component codeComponent = DiscordLinkText.clickable(
-                code,
+                "[" + code + "]",
                 ClickEvent.Action.COPY_TO_CLIPBOARD,
                 code,
                 "Click to copy your code");
 
         player.sendSystemMessage(DiscordLinkText.divider());
         player.sendSystemMessage(DiscordLinkText.title("LINK YOUR DISCORD"));
-        player.sendSystemMessage(DiscordLinkText.blank());
-        player.sendSystemMessage(prefix("Connect your Minecraft account to our Discord server."));
+        player.sendSystemMessage(DiscordLinkText.prefixed("Connect your Minecraft account to Discord."));
         player.sendSystemMessage(DiscordLinkText.blank());
 
         Component discordLine = Component.empty()
-                .append(DiscordLinkText.prefixed("Open "))
+                .append(DiscordLinkText.prefixed("Discord: "))
                 .append(DiscordLinkText.clickable(
-                        "[DISCORD]",
+                        "[OPEN DISCORD]",
                         ClickEvent.Action.OPEN_URL,
                         DiscordLinkConfig.INVITE_URL.get(),
                         "Open the Discord server"));
         player.sendSystemMessage(discordLine);
 
         Component commandLine = Component.empty()
-                .append(DiscordLinkText.prefixed("Then use "))
+                .append(DiscordLinkText.prefixed("Command: "))
                 .append(DiscordLinkText.clickable(
-                        "[/link-account]",
+                        "[INSERT /link-account]",
                         ClickEvent.Action.SUGGEST_COMMAND,
                         "/link-account code:" + code,
-                        "Click to insert the command"));
+                        "Insert the Discord command"));
         player.sendSystemMessage(commandLine);
 
         player.sendSystemMessage(Component.empty()
-                .append(DiscordLinkText.label("Your code", ""))
+                .append(DiscordLinkText.prefixed("Code: "))
                 .append(codeComponent));
-        player.sendSystemMessage(DiscordLinkText.label("Reward",
-                DiscordLinkConfig.REWARD_COUNT.get() + "x " + DiscordLinkConfig.REWARD_ITEM.get()));
+
+        player.sendSystemMessage(Component.empty()
+                .append(DiscordLinkText.prefixed("Reward: "))
+                .append(Component.literal(DiscordLinkConfig.REWARD_NAME.get())
+                        .setStyle(net.minecraft.network.chat.Style.EMPTY
+                                .withColor(DiscordLinkText.WHITE)
+                                .withBold(true))));
+
         player.sendSystemMessage(DiscordLinkText.blank());
-        player.sendSystemMessage(prefix("This code expires in 15 minutes."));
+        player.sendSystemMessage(DiscordLinkText.prefixed("Click the code to copy it."));
+        player.sendSystemMessage(DiscordLinkText.prefixed("Code expires in 15 minutes."));
         player.sendSystemMessage(DiscordLinkText.divider());
         return 1;
     }
