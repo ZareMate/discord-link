@@ -135,16 +135,38 @@ public final class DiscordLinkService extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        event.getJDA().updateCommands().addCommands(
+        registerDiscordCommands(event.getJDA());
+    }
+
+    private void registerDiscordCommands(JDA api) {
+        String guildId = DiscordLinkConfig.GUILD_ID.get();
+        var commands = java.util.List.of(
+                Commands.slash("link-account", "Link your Minecraft account")
+                        .addOption(OptionType.STRING, "code", "Six-digit code from /link", true),
+                Commands.slash("unlink-account", "Unlink your Minecraft account")
+        );
+        if (guildId != null && !guildId.isBlank() && api.getGuildById(guildId) != null) {
+            api.getGuildById(guildId).updateCommands().addCommands(commands).queue();
+        } else {
+            api.updateCommands().addCommands(commands).queue();
+        }
+        return;
+        /*
                 Commands.slash("link-account", "Link your Minecraft account")
                         .addOption(OptionType.STRING, "code", "Six-digit code from /link", true),
                 Commands.slash("unlink-account", "Unlink your Minecraft account")
         ).queue();
-        System.out.println("[DiscordLink] Discord bot online as " + event.getJDA().getSelfUser().getAsTag());
+        */
+        System.out.println("[DiscordLink] Discord bot online as " + api.getSelfUser().getAsTag());
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        String guildId = DiscordLinkConfig.GUILD_ID.get();
+        if (guildId != null && !guildId.isBlank() && (event.getGuild() == null || !guildId.equals(event.getGuild().getId()))) {
+            event.reply("This bot is not configured for this server.").setEphemeral(true).queue();
+            return;
+        }
         if (event.getName().equals("link-account")) {
             String code = event.getOption("code").getAsString();
             User user = event.getUser();
