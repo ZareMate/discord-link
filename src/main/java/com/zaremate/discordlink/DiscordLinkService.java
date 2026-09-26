@@ -116,6 +116,8 @@ public final class DiscordLinkService extends ListenerAdapter {
         link.rewarded = true;
         store.putLink(link);
 
+        addDiscordLinkNote(uuid, discordTag);
+
         if (!alreadyRewarded) {
             ServerPlayer player = server.getPlayerList().getPlayer(uuid);
             if (player != null) {
@@ -126,6 +128,19 @@ public final class DiscordLinkService extends ListenerAdapter {
             }
         }
         return true;
+    }
+
+    private void addDiscordLinkNote(UUID uuid, String discordTag) {
+        try {
+            Class<?> api = Class.forName("com.zaremate.admin_notes.AdminNotesAPI");
+            var addSystemNote = api.getMethod("addSystemNote", UUID.class, String.class);
+            addSystemNote.invoke(null, uuid, "Discord linked: " + discordTag);
+        } catch (ClassNotFoundException ignored) {
+            // Admin Notes is optional. Nothing to do when it is not installed.
+        } catch (Exception e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            System.err.println("[DiscordLink] Could not add Admin Notes note: " + cause);
+        }
     }
 
     public boolean unlink(UUID uuid) {
