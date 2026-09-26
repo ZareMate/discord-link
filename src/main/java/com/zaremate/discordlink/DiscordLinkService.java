@@ -116,8 +116,6 @@ public final class DiscordLinkService extends ListenerAdapter {
         link.rewarded = true;
         store.putLink(link);
 
-        addDiscordLinkNote(uuid, discordTag);
-
         if (!alreadyRewarded) {
             ServerPlayer player = server.getPlayerList().getPlayer(uuid);
             if (player != null) {
@@ -130,54 +128,10 @@ public final class DiscordLinkService extends ListenerAdapter {
         return true;
     }
 
-    private void addDiscordLinkNote(UUID uuid, String discordTag) {
-        try {
-            Class<?> api = Class.forName("com.zaremate.admin_notes.AdminNotesAPI");
-            var addSystemNote = api.getMethod("addSystemNote", UUID.class, String.class);
-            addSystemNote.invoke(null, uuid, "Discord linked: " + discordTag);
-        } catch (ClassNotFoundException ignored) {
-            // Admin Notes is optional. Nothing to do when it is not installed.
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
-            System.err.println("[DiscordLink] Could not add Admin Notes note: " + cause);
-        }
-    }
-
-    private void removeDiscordLinkNote(UUID uuid) {
-        try {
-            Class<?> api = Class.forName("com.zaremate.admin_notes.AdminNotesAPI");
-            var getNotes = api.getMethod("getNotes", UUID.class);
-            var removeNote = api.getMethod("removeNote", UUID.class, UUID.class);
-
-            @SuppressWarnings("unchecked")
-            java.util.List<Object> notes = (java.util.List<Object>) getNotes.invoke(null, uuid);
-
-            for (int i = notes.size() - 1; i >= 0; i--) {
-                Object note = notes.get(i);
-                Class<?> noteClass = note.getClass();
-
-                boolean isSystem = (boolean) noteClass.getMethod("isSystem").invoke(note);
-                String text = (String) noteClass.getMethod("text").invoke(note);
-
-                if (isSystem && text != null && text.startsWith("Discord linked: ")) {
-                    UUID noteId = (UUID) noteClass.getMethod("id").invoke(note);
-                    removeNote.invoke(null, uuid, noteId);
-                    return;
-                }
-            }
-        } catch (ClassNotFoundException ignored) {
-            // Admin Notes is optional. Nothing to do when it is not installed.
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
-            System.err.println("[DiscordLink] Could not remove Admin Notes note: " + cause);
-        }
-    }
-
     public boolean unlink(UUID uuid) {
         DiscordLinkStore.Link link = store.get(uuid);
         if (link == null || link.discordId == null) return false;
 
-        removeDiscordLinkNote(uuid);
         store.unlink(uuid);
         return true;
     }
