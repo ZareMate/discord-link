@@ -19,7 +19,7 @@ LuckPerms is supported on NeoForge. The admin commands use these permission node
 - `discordlink.admin.check` — `/checklink` and `/discordcheck`
 - `discordlink.admin.unlink` — `/discordunlink`
 
-LuckPerms permission checks include inherited permissions, so a group can be granted either node. A wildcard such as `discordlink.admin.*` can cover both through LuckPerms' normal permission calculation. citeturn963882search0turn151806search1
+LuckPerms permission checks include inherited permissions, so a group can be granted either node. A wildcard such as `discordlink.admin.*` can cover both through LuckPerms' normal permission calculation.
 
 The personal commands `/link`, `/discord`, and `/unlinkdiscord` remain available to players without an admin permission.
 
