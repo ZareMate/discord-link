@@ -12,6 +12,8 @@ A NeoForge 1.21.1 mod that hosts its Discord bot inside the Minecraft server. No
 6. Offline players receive the reward when they next join.
 7. `/unlinkdiscord` and Discord `/unlink-account` remove the association without removing the original reward.
 
+Discord Link exposes its link state through `com.zaremate.discordlink.DiscordLinkAPI`, allowing other server-side mods such as Admin Notes to read the current association without accessing the store directly.
+
 ## LuckPerms permissions
 
 LuckPerms is supported on NeoForge. The admin commands use these permission nodes:
@@ -62,6 +64,21 @@ Never commit your bot token.
 ## Discord bot setup
 
 Create a Discord application/bot and invite it to your server with the `bot` and `applications.commands` scopes. Put the bot token in `botToken`.
+
+## Mod API
+
+Other server-side mods can query the current link state:
+
+```java
+Optional<DiscordLinkAPI.PlayerLink> link =
+        DiscordLinkAPI.getPlayerLink(playerUuid);
+
+boolean linked = DiscordLinkAPI.isLinked(playerUuid);
+```
+
+`PlayerLink` contains the Minecraft UUID/name, Discord ID/tag, link timestamp, display name, and reward state. The API is read-only and does not perform migrations.
+
+Admin Notes uses this API at `/note <player>` time to show a live `[DISCORD]` section. Discord Link does not write or require an Admin Notes entry for the link state.
 
 ## Data
 
